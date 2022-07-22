@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "999105837304",
+    "project_id": "crudwecode",
+    "storage_bucket": "crudwecode.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:999105837304:android:ee6b9d097f05598856230d",
+        "android_client_info": {
+          "package_name": "com.example.wecode_firebase_flutter_b"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "999105837304-v6eomnn99bh8jgfei8fu0c6fh13kp678.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARP_GstsDTg57fGyPc7OTff8z9V7pyHAI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "999105837304-v6eomnn99bh8jgfei8fu0c6fh13kp678.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
