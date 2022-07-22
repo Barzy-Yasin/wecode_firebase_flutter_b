@@ -1,6 +1,6 @@
 # wecode_firebase_flutter_b
 
-A new Flutter project.
+crud using firebase
 
 ## Getting Started
 
