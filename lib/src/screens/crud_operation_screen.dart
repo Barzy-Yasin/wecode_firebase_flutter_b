@@ -1,4 +1,6 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers
+
+// import 'dart:html';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 // ignore: unused_import
@@ -16,6 +18,7 @@ class CrudOperationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey,
       appBar: AppBar(),
       // ignore: avoid_unnecessary_containers
       body: Container(
@@ -23,8 +26,23 @@ class CrudOperationsScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Container(
+                child: FutureBuilder<DocumentSnapshot>(
+                  future: readSingleDocument(),
+                  builder: (context, snapshot) {
+                     if (snapshot.connectionState == ConnectionState.waiting) {
+                       return CircularProgressIndicator();
+                     } else if (snapshot.data == null || !snapshot.hasData) {
+                       return Text('snapshot is empty');
+                     } else if (snapshot.hasError) {
+                       return Text(snapshot.error.toString());
+                     }
+                     return Text(snapshot.data!.data().toString());
+                  },
+                ),
+              ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Form(
                   key: _formKey,
                   child: TextFormField(
@@ -39,12 +57,15 @@ class CrudOperationsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              Divider(),
+              Divider(
+                height: 25,
+              ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate() == true) {
                     debugPrint('form validated');
-                    addNameToDB(name: _nameController.value.text);
+                    await addNameToDB(name: _nameController.value.text)
+                        .then((value) => debugPrint(value.path));
                   } else {
                     debugPrint('form not validated');
                   }
@@ -58,11 +79,18 @@ class CrudOperationsScreen extends StatelessWidget {
     );
   }
 
-  addNameToDB({required String name}) {
-    _firebaseFirestore.collection('names').add(
-      {
-        "first_name": name,
-      },
-    );
+  Future<DocumentReference> addNameToDB({required String name}) async {
+    DocumentReference _doc = await _firebaseFirestore.collection('names').add({
+      "first_name": name,
+    });
+    return _doc;
   }
+
+  Future<DocumentSnapshot> readSingleDocument() async {
+    DocumentSnapshot _doc =
+        await _firebaseFirestore.collection("names").doc("FQogtklFa0Rz0QC3M9qX").get();
+  print(_doc.data());
+    return _doc;
+  }
+
 }
