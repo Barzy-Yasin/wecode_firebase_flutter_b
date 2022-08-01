@@ -9,6 +9,9 @@ class CrudOperationsScreen extends StatelessWidget {
   CrudOperationsScreen({Key? key}) : super(key: key);
 
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
+  final TextEditingController _nameController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +23,31 @@ class CrudOperationsScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('hello'),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Form(
+                  key: _formKey,
+                  child: TextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                    controller: _nameController,
+                    decoration: InputDecoration(border: OutlineInputBorder()),
+                  ),
+                ),
+              ),
+              Divider(),
               ElevatedButton(
                 onPressed: () {
-                  addNameToDB();
+                  if (_formKey.currentState!.validate() == true) {
+                    debugPrint('form validated');
+                    addNameToDB(name: _nameController.value.text);
+                  } else {
+                    debugPrint('form not validated');
+                  }
                 },
                 child: Text('Add Data'),
               )
@@ -34,9 +58,11 @@ class CrudOperationsScreen extends StatelessWidget {
     );
   }
 
-  addNameToDB() {
-    _firebaseFirestore.collection('names').add({
-      "first_name": "Baralilo_2",
-    });
+  addNameToDB({required String name}) {
+    _firebaseFirestore.collection('names').add(
+      {
+        "first_name": name,
+      },
+    );
   }
 }

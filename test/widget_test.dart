@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+// ignore: unused_import
 import 'package:wecode_firebase_flutter_b/main.dart';
 import 'package:wecode_firebase_flutter_b/root.dart';
 
