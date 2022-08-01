@@ -2,6 +2,8 @@
 
 // import 'dart:html';
 
+// import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 // ignore: unused_import
 import 'package:firebase_core/firebase_core.dart';
@@ -10,9 +12,13 @@ import 'package:flutter/material.dart';
 class CrudOperationsScreen extends StatelessWidget {
   CrudOperationsScreen({Key? key}) : super(key: key);
 
+  // FirbaseFirestore instance
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
+
+  // TextFormField controller variable
   final TextEditingController _nameController = TextEditingController();
 
+  // validation key
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -25,7 +31,8 @@ class CrudOperationsScreen extends StatelessWidget {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: [ 
+              // rendering read data readSingleDocument() 
               Container(
                 child: FutureBuilder<DocumentSnapshot>(
                   future: readSingleDocument(),
@@ -37,10 +44,13 @@ class CrudOperationsScreen extends StatelessWidget {
                      } else if (snapshot.hasError) {
                        return Text(snapshot.error.toString());
                      }
-                     return Text(snapshot.data!.data().toString());
+                    //  return Text(snapshot.data!.data().toString());
+                    Map<String, dynamic> name = snapshot.data!.data() as Map<String, dynamic>;
+                    return Text(name.values.first);
                   },
                 ),
               ),
+              // input TextFormField inside form
               Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Form(
@@ -60,6 +70,7 @@ class CrudOperationsScreen extends StatelessWidget {
               Divider(
                 height: 25,
               ),
+              // add data button 
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate() == true) {
@@ -78,7 +89,7 @@ class CrudOperationsScreen extends StatelessWidget {
       ),
     );
   }
-
+  // write (upload) data to firestore
   Future<DocumentReference> addNameToDB({required String name}) async {
     DocumentReference _doc = await _firebaseFirestore.collection('names').add({
       "first_name": name,
@@ -86,6 +97,7 @@ class CrudOperationsScreen extends StatelessWidget {
     return _doc;
   }
 
+  // read data from firestore
   Future<DocumentSnapshot> readSingleDocument() async {
     DocumentSnapshot _doc =
         await _firebaseFirestore.collection("names").doc("FQogtklFa0Rz0QC3M9qX").get();
