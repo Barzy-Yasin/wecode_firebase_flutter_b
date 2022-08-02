@@ -9,9 +9,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-class CrudOperationsScreen extends StatelessWidget {
+class CrudOperationsScreen extends StatefulWidget {
+  // ignore: prefer_const_constructors_in_immutables
   CrudOperationsScreen({Key? key}) : super(key: key);
 
+  @override
+  State<CrudOperationsScreen> createState() => _CrudOperationsScreenState();
+}
+
+class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
   // FirbaseFirestore instance
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
@@ -20,6 +26,8 @@ class CrudOperationsScreen extends StatelessWidget {
 
   // validation key
   final _formKey = GlobalKey<FormState>();
+
+  String valueId = "";
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +84,13 @@ class CrudOperationsScreen extends StatelessWidget {
                   if (_formKey.currentState!.validate() == true) {
                     debugPrint('form validated');
                     await addNameToDB(name: _nameController.value.text)
-                        .then((value) => debugPrint(value.path));
+                        .then((value) {
+                          debugPrint(value.path);
+                          setState(() {
+                            valueId = value.id;
+                          });
+                          debugPrint('current value.id=  ${value.id}');
+                        });
                   } else {
                     debugPrint('form not validated');
                   }
@@ -89,6 +103,7 @@ class CrudOperationsScreen extends StatelessWidget {
       ),
     );
   }
+
   // write (upload) data to firestore
   Future<DocumentReference> addNameToDB({required String name}) async {
     DocumentReference _doc = await _firebaseFirestore.collection('names').add({
@@ -100,9 +115,8 @@ class CrudOperationsScreen extends StatelessWidget {
   // read data from firestore
   Future<DocumentSnapshot> readSingleDocument() async {
     DocumentSnapshot _doc =
-        await _firebaseFirestore.collection("names").doc("FQogtklFa0Rz0QC3M9qX").get();
+        await _firebaseFirestore.collection("names").doc(valueId).get();
   print(_doc.data());
     return _doc;
   }
-
 }
