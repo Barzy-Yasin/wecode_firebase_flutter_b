@@ -36,66 +36,39 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Column(
-                children: [
-                  Text('read the entire collection once'),
-                  Container(
-                    height: 350,
-                    child: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                      future: getDataOnceUsingFuture(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Text(snapshot.error.toString());
-                        } else if (snapshot.data == null) {
-                          return Text('snapshottt no data');
-                        }
-                        // return Text(snapshot.data.toString());
-                        // return Text(snapshot.data!.docs.toString()); // returns firestore instances
-                        // return Text(snapshot.data!.docs.length.toString()); // returns number of documents inside the collection
-
-                        // snapshot.data!.docs.map((doc) => print (doc.data()));
-                        // return Text(snapshot.data!.docs.length.toString());
-                        return ListView.builder(
-                          itemCount: snapshot.data!.docs.length,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              color: Colors.yellow.shade100,
-                              alignment: Alignment.topLeft,
-                              margin: EdgeInsets.symmetric(vertical: 1, horizontal: 20),
-                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                              child: Text("${index+1}: ${snapshot.data!.docs[index]
-                                  .data()["first_name"]}"),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              // rendering read data readSingleDocument()
-              Text('read one specific document'),
+              // reading entire collection using streamBuilder 
               Container(
-                child: FutureBuilder<DocumentSnapshot>(
-                  future: readSingleDocument(),
+                height: 300,
+                padding: EdgeInsets.all(20),
+                child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: _firebaseFirestore.collection('names').snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return CircularProgressIndicator();
-                    } else if (snapshot.data == null || !snapshot.hasData) {
-                      return Text('snapshot is empty');
                     } else if (snapshot.hasError) {
-                      return Text(snapshot.error.toString());
+                      return Text("err ${snapshot.error}");
+                    } else if (snapshot.data == null || !snapshot.hasData) {
+                      return Text('snapshot is empty(StreamBuilder)');
                     }
-                    //  return Text(snapshot.data!.data().toString());
-                    Map<String, dynamic> name =
-                        snapshot.data!.data() as Map<String, dynamic>;
-                    return Text(name.values.first);
+
+                    snapshot.data!.docs.first;
+
+                    return ListView.separated(
+                        itemCount: snapshot.data!.docs.length,
+                        separatorBuilder: (BuildContext context, int index) {
+                          return Divider();
+                        },
+                        itemBuilder: (BuildContext context, int index) {
+                          return Text("${index+1}: ${snapshot.data!.docs[index]
+                              .data()["first_name"]}");
+                        });
                   },
                 ),
               ),
+
+              // getDataUsingFutureBuilder(), // to read data using future builder    (rendering)
+              readOneDocumentWidget(), //  read data readSingleDocument()   (rendering)
+
               // input TextFormField inside form
               Padding(
                 padding: EdgeInsets.all(8.0),
@@ -158,9 +131,79 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
     return _doc;
   }
 
-  // returning all the data inside a collection once 
+  // returning all the data inside a collection once
   Future<QuerySnapshot<Map<String, dynamic>>> getDataOnceUsingFuture() async {
     return await _firebaseFirestore.collection('names').get();
   }
-  
+
+  // to read data using future builder    (rendering)
+  Widget getDataUsingFutureBuilder() {
+    return Column(
+      children: [
+        Text('read the entire collection once'),
+        Container(
+          height: 350,
+          child: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            future: getDataOnceUsingFuture(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Text(snapshot.error.toString());
+              } else if (snapshot.data == null) {
+                return Text('snapshottt no data');
+              }
+              // return Text(snapshot.data.toString());
+              // return Text(snapshot.data!.docs.toString()); // returns firestore instances
+              // return Text(snapshot.data!.docs.length.toString()); // returns number of documents inside the collection
+
+              // snapshot.data!.docs.map((doc) => print (doc.data()));
+              // return Text(snapshot.data!.docs.length.toString());
+              return ListView.builder(
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    color: Colors.yellow.shade100,
+                    alignment: Alignment.topLeft,
+                    margin: EdgeInsets.symmetric(vertical: 1, horizontal: 20),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    child: Text(
+                        "${index + 1}: ${snapshot.data!.docs[index].data()["first_name"]}"),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  //  read data readSingleDocument()   (rendering)
+  Widget readOneDocumentWidget() {
+    return // rendering read data readSingleDocument()
+        Column(
+      children: [
+        Text('read one specific document'),
+        Container(
+          child: FutureBuilder<DocumentSnapshot>(
+            future: readSingleDocument(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.data == null || !snapshot.hasData) {
+                return Text('snapshot is empty');
+              } else if (snapshot.hasError) {
+                return Text(snapshot.error.toString());
+              }
+              //  return Text(snapshot.data!.data().toString());
+              Map<String, dynamic> name =
+                  snapshot.data!.data() as Map<String, dynamic>;
+              return Text(name.values.first);
+            },
+          ),
+        ),
+      ],
+    );
+  }
 }
