@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers
 
+import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 // ignore: unused_import
 import 'package:firebase_core/firebase_core.dart';
@@ -63,22 +65,22 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
                           },
                           itemBuilder: (BuildContext context, int index) {
                             final theRecord = snapshot.data!.docs[index].data();
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "${index + 1}: ${theRecord["first_name"]}",
-                                ),
-                                IconButton(
-                                    onPressed: () {
-                                      _firebaseFirestore
-                                          .collection('names')
-                                          .where('first_name',
-                                              isEqualTo:
-                                                  theRecord["first_name"]).get().then((value) => value.docs.first.reference.delete());
-                                    },
-                                    icon: Icon(Icons.delete))
-                              ],
+                            return ListTile(
+                              title: Text(
+                                "${index + 1}: ${theRecord["first_name"]}",
+                              ),
+                              trailing: IconButton(
+                                  onPressed: () {
+                                    _firebaseFirestore
+                                        .collection('names')
+                                        .where('first_name',
+                                            isEqualTo: theRecord["first_name"])
+                                        .get()
+                                        .then((value) => value
+                                            .docs.first.reference
+                                            .delete());
+                                  },
+                                  icon: Icon(Icons.delete)),
                             );
                           });
                     },
