@@ -29,40 +29,60 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey,
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text('stream builder '),
+      ),
       // ignore: avoid_unnecessary_containers
       body: Container(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // reading entire collection using streamBuilder 
-              Container(
-                height: 300,
-                padding: EdgeInsets.all(20),
-                child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                  stream: _firebaseFirestore.collection('names').snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text("err ${snapshot.error}");
-                    } else if (snapshot.data == null || !snapshot.hasData) {
-                      return Text('snapshot is empty(StreamBuilder)');
-                    }
+              // reading entire collection using streamBuilder
+              Expanded(
+                child: Container(
+                  // height: 200,
+                  padding: EdgeInsets.all(20),
+                  child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: _firebaseFirestore.collection('names').snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text("err ${snapshot.error}");
+                      } else if (snapshot.data == null || !snapshot.hasData) {
+                        return Text('snapshot is empty(StreamBuilder)');
+                      }
 
-                    snapshot.data!.docs.first;
+                      snapshot.data!.docs.first;
 
-                    return ListView.separated(
-                        itemCount: snapshot.data!.docs.length,
-                        separatorBuilder: (BuildContext context, int index) {
-                          return Divider();
-                        },
-                        itemBuilder: (BuildContext context, int index) {
-                          return Text("${index+1}: ${snapshot.data!.docs[index]
-                              .data()["first_name"]}");
-                        });
-                  },
+                      return ListView.separated(
+                          itemCount: snapshot.data!.docs.length,
+                          separatorBuilder: (BuildContext context, int index) {
+                            return Divider();
+                          },
+                          itemBuilder: (BuildContext context, int index) {
+                            final theRecord = snapshot.data!.docs[index].data();
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "${index + 1}: ${theRecord["first_name"]}",
+                                ),
+                                IconButton(
+                                    onPressed: () {
+                                      _firebaseFirestore
+                                          .collection('names')
+                                          .where('first_name',
+                                              isEqualTo:
+                                                  theRecord["first_name"]).get().then((value) => value.docs.first.reference.delete());
+                                    },
+                                    icon: Icon(Icons.delete))
+                              ],
+                            );
+                          });
+                    },
+                  ),
                 ),
               ),
 
