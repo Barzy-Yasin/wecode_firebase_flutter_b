@@ -1,8 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:wecode_firebase_flutter_b/src/services/auth_service.dart';
 
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({Key? key}) : super(key: key);
+
+  final Auth _auth = Auth(); // provide access throuhg Auth class in auth_service.dart file 
 
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -41,10 +43,11 @@ class RegisterScreen extends StatelessWidget {
                 Container(
                   child: ElevatedButton(
                       onPressed: () {
-                        registerWithEmailAndPassword(
+                        _auth.registerWithEmailAndPassword(
                           _userNameController.text,
                           _passwordController.text,
-                        ).then((value) => debugPrint("user email with debug Print: ${value.user!.uid}"));
+                        ).then((value) => debugPrint(
+                            "user email with debug Print: ${value.user!.uid}"));
                       },
                       child: const Text(
                         "Register",
@@ -56,33 +59,5 @@ class RegisterScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Future<UserCredential> registerWithEmailAndPassword(
-      String emailFromTheBody, String passwordFromTheBody) async {
-    // ignore: no_leading_underscores_for_local_identifiers
-    UserCredential _userCredential = await FirebaseAuth.instance
-        .createUserWithEmailAndPassword(
-            email: emailFromTheBody, password: passwordFromTheBody);
-
-    debugPrint("debug Print from method; ${_userCredential.user!.email}");
-    return _userCredential;
-
-    //  handle the errors : 
-    //try {
-    //   final credential =
-    //       await FirebaseAuth.instance.createUserWithEmailAndPassword(
-    //     email: emailAddress,
-    //     password: password,
-    //   );
-    // } on FirebaseAuthException catch (e) {
-    //   if (e.code == 'weak-password') {
-    //     print('The password provided is too weak.');
-    //   } else if (e.code == 'email-already-in-use') {
-    //     print('The account already exists for that email.');
-    //   }
-    // } catch (e) {
-    //   print(e);
-    // }
   }
 }
