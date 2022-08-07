@@ -2,8 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Auth {
-
-  // used in register screen 
+  // used in register screen
   Future<UserCredential> registerWithEmailAndPassword(
       String emailFromTheBody, String passwordFromTheBody) async {
     // ignore: no_leading_underscores_for_local_identifiers
@@ -29,5 +28,11 @@ class Auth {
     // } catch (e) {
     //   print(e);
     // }
+  }
+ 
+  Future<UserCredential> loginWithUserAndPassword(
+      {required String email, required String password}) {
+    return FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
   }
 }
