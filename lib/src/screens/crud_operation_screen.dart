@@ -1,6 +1,5 @@
-// ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers
 
-import 'dart:html';
+// ignore_for_file: avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 // ignore: unused_import
@@ -32,7 +31,7 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
     return Scaffold(
       backgroundColor: Colors.grey,
       appBar: AppBar(
-        title: Text('stream builder '),
+        title: const Text('stream builder '),
       ),
       // ignore: avoid_unnecessary_containers
       body: Container(
@@ -44,16 +43,16 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
               Expanded(
                 child: Container(
                   // height: 200,
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                     stream: _firebaseFirestore.collection('names').snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
+                        return const CircularProgressIndicator();
                       } else if (snapshot.hasError) {
                         return Text("err ${snapshot.error}");
                       } else if (snapshot.data == null || !snapshot.hasData) {
-                        return Text('snapshot is empty(StreamBuilder)');
+                        return const Text('snapshot is empty(StreamBuilder)');
                       }
 
                       snapshot.data!.docs.first;
@@ -61,7 +60,9 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
                       return ListView.separated(
                           itemCount: snapshot.data!.docs.length,
                           separatorBuilder: (BuildContext context, int index) {
-                            return Divider();
+                            return const Divider(
+                              thickness: 2.5,
+                            );
                           },
                           itemBuilder: (BuildContext context, int index) {
                             final theRecord = snapshot.data!.docs[index].data();
@@ -79,8 +80,11 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
                                         .then((value) => value
                                             .docs.first.reference
                                             .delete());
+                                            debugPrint('debug record deleted (${theRecord["first_name"]})');
+                                            print('record deleted (${theRecord["first_name"]})');
+                                            // debugger();
                                   },
-                                  icon: Icon(Icons.delete)),
+                                  icon: const Icon(Icons.add)),
                             );
                           });
                     },
@@ -93,7 +97,7 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
 
               // input TextFormField inside form
               Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Form(
                   key: _formKey,
                   child: TextFormField(
@@ -104,11 +108,11 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
                       return null;
                     },
                     controller: _nameController,
-                    decoration: InputDecoration(border: OutlineInputBorder()),
+                    decoration: const InputDecoration(border: OutlineInputBorder()),
                   ),
                 ),
               ),
-              Divider(
+              const Divider(
                 height: 25,
               ),
               // add data button
@@ -128,7 +132,7 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
                     debugPrint('form not validated');
                   }
                 },
-                child: Text('Add Data'),
+                child: const Text('Add Data'),
               )
             ],
           ),
@@ -139,18 +143,18 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
 
   // write (upload) data to firestore
   Future<DocumentReference> addNameToDB({required String name}) async {
-    DocumentReference _doc = await _firebaseFirestore.collection('names').add({
+    DocumentReference doc = await _firebaseFirestore.collection('names').add({
       "first_name": name,
     });
-    return _doc;
+    return doc;
   }
 
   // read data from firestore, one element
   Future<DocumentSnapshot> readSingleDocument() async {
-    DocumentSnapshot _doc =
+    DocumentSnapshot doc =
         await _firebaseFirestore.collection("names").doc(valueId).get();
-    print(_doc.data());
-    return _doc;
+    print(doc.data());
+    return doc;
   }
 
   // returning all the data inside a collection once
@@ -162,18 +166,19 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
   Widget getDataUsingFutureBuilder() {
     return Column(
       children: [
-        Text('read the entire collection once'),
+        const Text('read the entire collection once'),
+        // ignore: sized_box_for_whitespace
         Container(
           height: 350,
           child: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
             future: getDataOnceUsingFuture(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Text(snapshot.error.toString());
               } else if (snapshot.data == null) {
-                return Text('snapshottt no data');
+                return const Text('snapshottt no data');
               }
               // return Text(snapshot.data.toString());
               // return Text(snapshot.data!.docs.toString()); // returns firestore instances
@@ -187,8 +192,8 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
                   return Container(
                     color: Colors.yellow.shade100,
                     alignment: Alignment.topLeft,
-                    margin: EdgeInsets.symmetric(vertical: 1, horizontal: 20),
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    margin: const EdgeInsets.symmetric(vertical: 1, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     child: Text(
                         "${index + 1}: ${snapshot.data!.docs[index].data()["first_name"]}"),
                   );
@@ -206,15 +211,16 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
     return // rendering read data readSingleDocument()
         Column(
       children: [
-        Text('read one specific document'),
+        const Text('read one specific document'),
+        // ignore: avoid_unnecessary_containers
         Container(
           child: FutureBuilder<DocumentSnapshot>(
             future: readSingleDocument(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               } else if (snapshot.data == null || !snapshot.hasData) {
-                return Text('snapshot is empty');
+                return const Text('snapshot is empty');
               } else if (snapshot.hasError) {
                 return Text(snapshot.error.toString());
               }
