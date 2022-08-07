@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wecode_firebase_flutter_b/src/screens/register_screen.dart';
 
-class LoginScreen extends StatelessWidget {
-  LoginScreen({Key? key}) : super(key: key);
+class RegisterScreen extends StatelessWidget {
+  RegisterScreen({Key? key}) : super(key: key);
 
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -12,7 +11,7 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey,
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Register'),
       ),
       body: Column(
         children: [
@@ -36,17 +35,14 @@ class LoginScreen extends StatelessWidget {
                   obscureText: true,
                 ),
                 const SizedBox(height: 25),
-
-                TextButton(onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => RegisterScreen(),));
-                }, child: Text('not registered yet? register here!')),
                 // ignore: avoid_unnecessary_containers
                 Container(
                   child: ElevatedButton(
                       onPressed: () {
+                        print('jjjjj');
                       },
                       child: const Text(
-                        "login",
+                        "Register",
                       )),
                 )
               ],
