@@ -10,6 +10,27 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: Text('connection state is waiting'));
+          } else if (snapshot.hasError) {
+            return Text('snapshot.hasError the error is: ${snapshot.error}');
+          } else if (snapshot.data == null) {
+            return notLoggedIn(context);
+          }
+          return theUserIsLoggedIn(snapshot.data!.email!.toString());
+        });
+  }
+
+  Future<UserCredential> loginWithUserAndPassword(
+      {required String email, required String password}) {
+    return FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
+  }
+
+  Widget notLoggedIn(context) {
     return Scaffold(
       backgroundColor: Colors.grey,
       appBar: AppBar(
@@ -44,7 +65,10 @@ class LoginScreen extends StatelessWidget {
                       builder: (context) => RegisterScreen(),
                     ));
                   },
-                  style: ButtonStyle(elevation: MaterialStateProperty.all(3), shadowColor: MaterialStateProperty.all(Colors.blueAccent)),
+                  style: ButtonStyle(
+                      elevation: MaterialStateProperty.all(3),
+                      shadowColor:
+                          MaterialStateProperty.all(Colors.blueAccent)),
                   child: const Text(
                     'not registered yet? register here!',
                     style: TextStyle(color: Colors.white, fontSize: 17),
@@ -66,7 +90,7 @@ class LoginScreen extends StatelessWidget {
                         );
                       },
                       child: const Text(
-                        "Login",
+                        "Loginn",
                       )),
                 )
               ],
@@ -77,9 +101,11 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Future<UserCredential> loginWithUserAndPassword(
-      {required String email, required String password}) {
-    return FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: email, password: password);
+  Widget theUserIsLoggedIn(String email) {
+    return Scaffold(
+      body: Center(
+        child: Text('Hello dear $email'),
+      ),
+    );
   }
 }
