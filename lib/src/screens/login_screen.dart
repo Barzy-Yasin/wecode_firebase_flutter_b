@@ -34,6 +34,7 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey,
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Login'),
       ),
       body: Column(
@@ -44,57 +45,58 @@ class LoginScreen extends StatelessWidget {
             margin: const EdgeInsets.all(15),
             padding: const EdgeInsets.all(15),
             child: Form(
-                child: Column(
-              children: [
-                const SizedBox(height: 10),
-                const Text('user name/email'),
-                TextFormField(
-                  controller: _userNameController,
-                ),
-                const SizedBox(height: 25),
-                const Text('password'),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                ),
-                const SizedBox(height: 25),
-
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => RegisterScreen(),
-                    ));
-                  },
-                  style: ButtonStyle(
-                      elevation: MaterialStateProperty.all(3),
-                      shadowColor:
-                          MaterialStateProperty.all(Colors.blueAccent)),
-                  child: const Text(
-                    'not registered yet? register here!',
-                    style: TextStyle(color: Colors.white, fontSize: 17),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  const Text('user name/email'),
+                  TextFormField(
+                    controller: _userNameController,
                   ),
-                ),
-                // ignore: avoid_unnecessary_containers
-                Container(
-                  child: ElevatedButton(
-                      onPressed: () async {
-                        debugPrint('username: ${_userNameController.text}');
-                        debugPrint('password: ${_passwordController.text}');
+                  const SizedBox(height: 25),
+                  const Text('password'),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 25),
 
-                        await loginWithUserAndPassword(
-                          email: _userNameController.text,
-                          password: _passwordController.text,
-                        ).then(
-                          (value) => debugPrint(
-                              'login succesfully: ${value.user!.email}'),
-                        );
-                      },
-                      child: const Text(
-                        "Loginn",
-                      )),
-                )
-              ],
-            )),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => RegisterScreen(),
+                      ));
+                    },
+                    style: ButtonStyle(
+                        elevation: MaterialStateProperty.all(3),
+                        shadowColor:
+                            MaterialStateProperty.all(Colors.blueAccent)),
+                    child: const Text(
+                      'not registered yet? register here!',
+                      style: TextStyle(color: Colors.white, fontSize: 17),
+                    ),
+                  ),
+                  // ignore: avoid_unnecessary_containers
+                  Container(
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          debugPrint('username: ${_userNameController.text}');
+                          debugPrint('password: ${_passwordController.text}');
+
+                          await loginWithUserAndPassword(
+                            email: _userNameController.text,
+                            password: _passwordController.text,
+                          ).then(
+                            (value) => debugPrint(
+                                'login succesfully: ${value.user!.email}'),
+                          );
+                        },
+                        child: const Text(
+                          "Login",
+                        )),
+                  )
+                ],
+              ),
+            ),
           )
         ],
       ),
@@ -103,8 +105,26 @@ class LoginScreen extends StatelessWidget {
 
   Widget theUserIsLoggedIn(String email) {
     return Scaffold(
+      backgroundColor: Colors.grey,
       body: Center(
-        child: Text('Hello dear $email'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Hello dear "$email"'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text('You are logged in successfully'),
+                SizedBox(height: 15),
+                Icon(Icons.check_circle, color: Colors.teal,)
+              ],
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: () {
+              FirebaseAuth.instance.signOut();
+            }, child: const Text('Logout'))
+          ],
+        ),
       ),
     );
   }
