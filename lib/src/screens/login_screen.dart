@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wecode_firebase_flutter_b/src/screens/register_screen.dart';
 
@@ -37,13 +38,32 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
 
-                TextButton(onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => RegisterScreen(),));
-                }, child: const Text('not registered yet? register here!', style: TextStyle(color: Colors.white, fontSize: 17),)),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => RegisterScreen(),
+                    ));
+                  },
+                  style: ButtonStyle(elevation: MaterialStateProperty.all(3), shadowColor: MaterialStateProperty.all(Colors.blueAccent)),
+                  child: const Text(
+                    'not registered yet? register here!',
+                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
+                ),
                 // ignore: avoid_unnecessary_containers
                 Container(
                   child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        debugPrint('username: ${_userNameController.text}');
+                        debugPrint('password: ${_passwordController.text}');
+
+                        await loginWithUserAndPassword(
+                          email: _userNameController.text,
+                          password: _passwordController.text,
+                        ).then(
+                          (value) => debugPrint(
+                              'login succesfully: ${value.user!.email}'),
+                        );
                       },
                       child: const Text(
                         "Login",
@@ -55,5 +75,11 @@ class LoginScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<UserCredential> loginWithUserAndPassword(
+      {required String email, required String password}) {
+    return FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
   }
 }

@@ -60,6 +60,7 @@ class RegisterScreen extends StatelessWidget {
 
   Future<UserCredential> registerWithEmailAndPassword(
       String emailFromTheBody, String passwordFromTheBody) async {
+    // ignore: no_leading_underscores_for_local_identifiers
     UserCredential _userCredential = await FirebaseAuth.instance
         .createUserWithEmailAndPassword(
             email: emailFromTheBody, password: passwordFromTheBody);
