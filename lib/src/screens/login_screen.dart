@@ -39,14 +39,14 @@ class LoginScreen extends StatelessWidget {
 
                 TextButton(onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => RegisterScreen(),));
-                }, child: Text('not registered yet? register here!')),
+                }, child: const Text('not registered yet? register here!', style: TextStyle(color: Colors.white, fontSize: 17),)),
                 // ignore: avoid_unnecessary_containers
                 Container(
                   child: ElevatedButton(
                       onPressed: () {
                       },
                       child: const Text(
-                        "login",
+                        "Login",
                       )),
                 )
               ],
