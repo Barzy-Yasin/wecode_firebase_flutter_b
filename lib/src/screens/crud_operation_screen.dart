@@ -1,4 +1,3 @@
-
 // ignore_for_file: avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,117 +27,134 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey,
-      appBar: AppBar(
-        title: const Text('stream builder '),
-      ),
-      // ignore: avoid_unnecessary_containers
-      body: Container(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // reading entire collection using streamBuilder
-              Expanded(
-                child: Container(
-                  // height: 200,
-                  padding: const EdgeInsets.all(20),
-                  child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                    stream: _firebaseFirestore.collection('names').snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text("err ${snapshot.error}");
-                      } else if (snapshot.data == null || !snapshot.hasData) {
-                        return const Text('snapshot is empty(StreamBuilder)');
-                      }
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: _firebaseFirestore.collection('names').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Text("err ${snapshot.error}");
+          } else if (snapshot.data == null || !snapshot.hasData) {
+            return const Text('snapshot is empty(StreamBuilder)');
+          }
+          snapshot.data!.docs.first;
 
-                      snapshot.data!.docs.first;
+          return Scaffold(
+            backgroundColor: Colors.grey,
+            appBar: AppBar(
+              centerTitle: true,
+              title: const Text('stream builder '),
+              actions: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('${snapshot.data!.docs.length}  ', style: const TextStyle(fontSize: 16),),
+                    const Icon(Icons.message),
+                    const Text('   ')
+                  ],
+                )
+              ],
+            ),
+            // ignore: avoid_unnecessary_containers
+            body: Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // reading entire collection using streamBuilder
+                    Expanded(
+                      child: Container(
+                        // height: 200,
+                        padding: const EdgeInsets.all(20),
 
-                      return ListView.separated(
-                          itemCount: snapshot.data!.docs.length,
-                          separatorBuilder: (BuildContext context, int index) {
-                            return const Divider(
-                              thickness: 2.5,
-                            );
+                        child: ListView.separated(
+                            itemCount: snapshot.data!.docs.length,
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return const Divider(
+                                thickness: 2.5,
+                              );
+                            },
+                            itemBuilder: (BuildContext context, int index) {
+                              final theRecord =
+                                  snapshot.data!.docs[index].data();
+                              return ListTile(
+                                title: Text(
+                                  "${index + 1}: ${theRecord["first_name"]}",
+                                ),
+                                trailing: IconButton(
+                                    onPressed: () {
+                                      _firebaseFirestore
+                                          .collection('names')
+                                          .where('first_name',
+                                              isEqualTo:
+                                                  theRecord["first_name"])
+                                          .get()
+                                          .then((value) => value
+                                              .docs.first.reference
+                                              .delete());
+                                      debugPrint(
+                                          'debug record deleted (${theRecord["first_name"]})');
+                                      print(
+                                          'record deleted (${theRecord["first_name"]})');
+                                      // debugger();
+                                    },
+                                    icon:  Icon(Icons.delete, color: Colors.red.withOpacity(0.7),)),
+                              );
+                            }),
+                      ),
+                    ),
+
+                    // getDataUsingFutureBuilder(), // to read data using future builder    (rendering)
+                    readOneDocumentWidget(), //  read data readSingleDocument()   (rendering)
+
+                    // input TextFormField inside form
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Form(
+                        key: _formKey,
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
                           },
-                          itemBuilder: (BuildContext context, int index) {
-                            final theRecord = snapshot.data!.docs[index].data();
-                            return ListTile(
-                              title: Text(
-                                "${index + 1}: ${theRecord["first_name"]}",
-                              ),
-                              trailing: IconButton(
-                                  onPressed: () {
-                                    _firebaseFirestore
-                                        .collection('names')
-                                        .where('first_name',
-                                            isEqualTo: theRecord["first_name"])
-                                        .get()
-                                        .then((value) => value
-                                            .docs.first.reference
-                                            .delete());
-                                            debugPrint('debug record deleted (${theRecord["first_name"]})');
-                                            print('record deleted (${theRecord["first_name"]})');
-                                            // debugger();
-                                  },
-                                  icon: const Icon(Icons.add)),
-                            );
+                          controller: _nameController,
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder()),
+                        ),
+                      ),
+                    ),
+                    const Divider(
+                      height: 25,
+                    ),
+                    // add data button
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate() == true) {
+                          debugPrint('form validated');
+                          await addNameToDB(name: _nameController.value.text)
+                              .then((value) {
+                            debugPrint(value.path);
+                            setState(() {
+                              valueId = value.id;
+                            });
+                            debugPrint('current value.id=  ${value.id}');
                           });
-                    },
-                  ),
+                        } else {
+                          debugPrint('form not validated');
+                        }
+                      },
+                      child: const Text('Add Data'),
+                    )
+                  ],
                 ),
               ),
-
-              // getDataUsingFutureBuilder(), // to read data using future builder    (rendering)
-              readOneDocumentWidget(), //  read data readSingleDocument()   (rendering)
-
-              // input TextFormField inside form
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Form(
-                  key: _formKey,
-                  child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
-                    controller: _nameController,
-                    decoration: const InputDecoration(border: OutlineInputBorder()),
-                  ),
-                ),
-              ),
-              const Divider(
-                height: 25,
-              ),
-              // add data button
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate() == true) {
-                    debugPrint('form validated');
-                    await addNameToDB(name: _nameController.value.text)
-                        .then((value) {
-                      debugPrint(value.path);
-                      setState(() {
-                        valueId = value.id;
-                      });
-                      debugPrint('current value.id=  ${value.id}');
-                    });
-                  } else {
-                    debugPrint('form not validated');
-                  }
-                },
-                child: const Text('Add Data'),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
+        });
   }
 
   // write (upload) data to firestore
@@ -192,8 +208,10 @@ class _CrudOperationsScreenState extends State<CrudOperationsScreen> {
                   return Container(
                     color: Colors.yellow.shade100,
                     alignment: Alignment.topLeft,
-                    margin: const EdgeInsets.symmetric(vertical: 1, horizontal: 20),
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 1, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
                     child: Text(
                         "${index + 1}: ${snapshot.data!.docs[index].data()["first_name"]}"),
                   );
