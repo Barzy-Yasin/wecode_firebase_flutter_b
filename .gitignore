@@ -46,13 +46,12 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# important file
-/lib/src/screens/test.dart
-/lib/src/screens/test.dart
-lib/src/screens/test_fils=w.dart
-lib/src/screens/test_fils=w.dart
-test.dart
+# # important file
+# /lib/src/screens/test.dart
+# /lib/src/screens/test.dart
+# lib/src/screens/test_fils=w.dart
+# lib/src/screens/test_fils=w.dart
+# test.dart
 
 # lib/src/screens/
-lib/src/screens/test_file.dart
 lib/src/screens/test_file.dart
